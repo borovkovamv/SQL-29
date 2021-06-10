@@ -54,9 +54,10 @@ having count(customer_id) > 300
 --Выведите ТОП-5 покупателей, 
 --которые взяли в аренду за всё время наибольшее количество фильмов
 
-select concat(c.last_name, ' ', c.first_name), count(rental_id)
+select concat(c.last_name, ' ', c.first_name), count(i.film_id)
 from rental  r
 join customer c on c.customer_id = r.customer_id 
+join inventory i on i.inventory_id = r.inventory_id 
 group by r.customer_id, c.customer_id 
 order by count(rental_id) desc limit 5
 
@@ -70,13 +71,20 @@ order by count(rental_id) desc limit 5
 --  4. максимальное значение платежа за аренду фильма
 
 select concat(c.last_name, ' ', c.first_name) as "Фамилия и имя покупателя", 
-	count(p.payment_id) as "Количество фильмов", 
+	count(count_film) as "Количество фильмов", 
 	round(sum(p.amount)) as   "Платежи", 
 	min(p.amount)  as "Минимальное значение платежа", 
 	max(p.amount) as "Максимальное значение платежа"
 from payment p 
 join customer c on c.customer_id = p.customer_id 
+join 
+	(select r.customer_id, count(i.film_id) as count_film 
+	from rental r  
+	join inventory i on r.inventory_id = i.inventory_id 
+	group by  r.customer_id) f 
+on f.customer_id = p.customer_id 
 group by p.customer_id, c.customer_id 
+order by concat(c.last_name, ' ', c.first_name) 
 
 --ЗАДАНИЕ №5
 --Используя данные из таблицы городов составьте одним запросом всевозможные пары городов таким образом,
