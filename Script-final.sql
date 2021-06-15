@@ -1,5 +1,5 @@
 --1
-select city "Город", count(airport_code) as "Количество аэропортов"
+select city "Р“РѕСЂРѕРґ", count(airport_code) as "РљРѕР»РёС‡РµСЃС‚РІРѕ Р°СЌСЂРѕРїРѕСЂС‚РѕРІ"
 from airports a
 group by city 
 having count(airport_code) > 1;
@@ -19,7 +19,7 @@ join airports a2 on a2.airport_code = aero.departure_airport
 
 
 --3
-select f.flight_id, f.scheduled_departure, f.actual_departure, 	f.actual_departure - f.scheduled_departure "Задержка вылета"
+select f.flight_id, f.scheduled_departure, f.actual_departure, 	f.actual_departure - f.scheduled_departure "Р—Р°РґРµСЂР¶РєР° РІС‹Р»РµС‚Р°"
 from flights f
 where f.actual_departure is not null
 order by 4 desc
@@ -28,9 +28,9 @@ limit 10
 --4
 select 
 	case 
-	when count(b.book_ref) > 0 then 'Да'
-	else 'Нет'
-	end as "Брони без посадочных"
+	when count(b.book_ref) > 0 then 'Р”Р°'
+	else 'РќРµС‚'
+	end as "Р‘СЂРѕРЅРё Р±РµР· РїРѕСЃР°РґРѕС‡РЅС‹С…"
 from bookings b
 left join tickets t on b.book_ref = t.book_ref
 left join boarding_passes bp on t.ticket_no = bp.ticket_no
@@ -43,7 +43,7 @@ with cte1 as (
 		f.aircraft_code,
 		f.departure_airport,
 		f.actual_departure,
-		count(bp.boarding_no) as "Количество посадочных"
+		count(bp.boarding_no) as "РљРѕР»РёС‡РµСЃС‚РІРѕ РїРѕСЃР°РґРѕС‡РЅС‹С…"
 	from flights f 
 	join boarding_passes bp on bp.flight_id = f.flight_id 
 	where f.actual_departure is not null
@@ -52,25 +52,25 @@ with cte1 as (
 cte2 as(
 	select 
 		s.aircraft_code,
-		count(s.seat_no) as "Количество мест в самолете"
+		count(s.seat_no) as "РљРѕР»РёС‡РµСЃС‚РІРѕ РјРµСЃС‚ РІ СЃР°РјРѕР»РµС‚Рµ"
 	from seats s 
 	group by s.aircraft_code )
 select 
 	c1.actual_departure,
 	c1.departure_airport,
 	c1.flight_id,
-	c2."Количество мест в самолете",
-	c1."Количество посадочных",
-	c2."Количество мест в самолете" - c1."Количество посадочных" as "Свободные места", 
-	round((c2."Количество мест в самолете" - c1."Количество посадочных") / c2."Количество мест в самолете" :: dec, 2) * 100 as "% свободных мест на рейсе",
-	sum(c1."Количество посадочных") over (partition by (c1.actual_departure::date, c1.departure_airport) order by c1.actual_departure, c1.departure_airport) "Количество вылетевших пассажиров"
+	c2."РљРѕР»РёС‡РµСЃС‚РІРѕ РјРµСЃС‚ РІ СЃР°РјРѕР»РµС‚Рµ",
+	c1."РљРѕР»РёС‡РµСЃС‚РІРѕ РїРѕСЃР°РґРѕС‡РЅС‹С…",
+	c2."РљРѕР»РёС‡РµСЃС‚РІРѕ РјРµСЃС‚ РІ СЃР°РјРѕР»РµС‚Рµ" - c1."РљРѕР»РёС‡РµСЃС‚РІРѕ РїРѕСЃР°РґРѕС‡РЅС‹С…" as "РЎРІРѕР±РѕРґРЅС‹Рµ РјРµСЃС‚Р°", 
+	round((c2."РљРѕР»РёС‡РµСЃС‚РІРѕ РјРµСЃС‚ РІ СЃР°РјРѕР»РµС‚Рµ" - c1."РљРѕР»РёС‡РµСЃС‚РІРѕ РїРѕСЃР°РґРѕС‡РЅС‹С…") / c2."РљРѕР»РёС‡РµСЃС‚РІРѕ РјРµСЃС‚ РІ СЃР°РјРѕР»РµС‚Рµ" :: dec, 2) * 100 as "% СЃРІРѕР±РѕРґРЅС‹С… РјРµСЃС‚ РЅР° СЂРµР№СЃРµ",
+	sum(c1."РљРѕР»РёС‡РµСЃС‚РІРѕ РїРѕСЃР°РґРѕС‡РЅС‹С…") over (partition by (c1.actual_departure::date, c1.departure_airport) order by c1.actual_departure, c1.departure_airport) "РљРѕР»РёС‡РµСЃС‚РІРѕ РІС‹Р»РµС‚РµРІС€РёС… РїР°СЃСЃР°Р¶РёСЂРѕРІ"
 from cte1 c1 
 join cte2 c2 on c2.aircraft_code = c1.aircraft_code
 
 --6
 select 
-aircraft_code as "Тип самолета", 
-round(count(flight_id) * 100. / (select count(flight_id) from flights f2)) as "% перелетов"
+aircraft_code as "РўРёРї СЃР°РјРѕР»РµС‚Р°", 
+round(count(flight_id) * 100. / (select count(flight_id) from flights f2)) as "% РїРµСЂРµР»РµС‚РѕРІ"
 from flights f 
 group by aircraft_code
 
@@ -116,16 +116,16 @@ order by city1, city2
 
 --9
 select 
-	a1.airport_name as "Вылет",
-	a2.airport_name AS "Прилет",
-	a.model AS "Модель самолета",
+	a1.airport_name as "Р’С‹Р»РµС‚",
+	a2.airport_name AS "РџСЂРёР»РµС‚",
+	a.model AS "РњРѕРґРµР»СЊ СЃР°РјРѕР»РµС‚Р°",
 	a."range",
-	round((acos(sind(a1.latitude) * sind(a2.latitude) + cosd(a1.latitude) * cosd(a2.latitude) * cosd(a1.longitude - a2.longitude)) * 6371)::dec, 2) as "Расстояние между аэропортами",		
+	round((acos(sind(a1.latitude) * sind(a2.latitude) + cosd(a1.latitude) * cosd(a2.latitude) * cosd(a1.longitude - a2.longitude)) * 6371)::dec, 2) as "Р Р°СЃСЃС‚РѕСЏРЅРёРµ РјРµР¶РґСѓ Р°СЌСЂРѕРїРѕСЂС‚Р°РјРё",		
 	case 
 		when a."range" < acos(sind(a1.latitude) * sind(a2.latitude) + cosd(a1.latitude) * cosd(a2.latitude) * cosd(a1.longitude - a2.longitude)) * 6371 
-		then 'НЕТ, ALARM!'
-		else 'Да, все ОК'
-	end "Проверка, долетит?"
+		then 'РќР•Рў, ALARM!'
+		else 'Р”Р°, РІСЃРµ РћРљ'
+	end "РџСЂРѕРІРµСЂРєР°, РґРѕР»РµС‚РёС‚?"
 from flights f
 join airports a1 on f.departure_airport = a1.airport_code
 join airports a2 on f.arrival_airport = a2.airport_code
